@@ -12,6 +12,7 @@ const generateTokens = (userId) => {
     })
     return { accessToken, refreshToken }
 }
+
 const storeRefreshToken = async (userId, refreshToken) => {
     await redis.set(`refresh_Token:${userId}`, refreshToken, 'EX', 7 * 24 * 60 * 60)
 }
@@ -33,7 +34,6 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signup = async (req, res) => {
     const { email, password, name } = req.body
-    console.log(email);
     try {
         const existingUser = await User.findOne({ email }) // Checking if user already exist in db
         if (existingUser) { // if user exist then send a message that "User already exist"
@@ -44,6 +44,7 @@ export const signup = async (req, res) => {
         const { accessToken, refreshToken } = generateTokens(user._id)
 
         await storeRefreshToken(user._id, refreshToken)
+
         setCookies(res, accessToken, refreshToken)
 
         return res.status(201).json({
@@ -103,7 +104,6 @@ export const refreshToken = async (req, res) => {
             return res.status(401).json({ message: "Refresh token is invalid" })
         }
         const accessToken = jwt.sign({ userId: decoded.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" })
-        console.log(accessToken);
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -116,9 +116,6 @@ export const refreshToken = async (req, res) => {
         return res.status(500).json({ message: "Server Error!", error: error.message })
     }
 }
-
-
-
 
 
 export const getProfile = async (req, res) => {
