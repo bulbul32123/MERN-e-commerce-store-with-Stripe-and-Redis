@@ -15,7 +15,7 @@ import PurchaseSuccessPage from './pages/PurchaseSuccessPage'
 import PurchaseCancelPage from './pages/PurchaseCancelPage'
 
 export default function App() {
-  const { user, checkAuth, checkingAuth } = useUserStore()
+  const { user, checkAuth } = useUserStore()
   const { getCartItems } = useCartStore()
 
   useEffect(() => {
@@ -27,7 +27,6 @@ export default function App() {
     getCartItems()
   }, [getCartItems, user])
 
-  if (checkingAuth) return <LoadingSpinner />
 
   return (
     <div className='min-h-screen bg-gray-900 text-white relative overflow-hidden '>
