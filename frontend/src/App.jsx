@@ -6,6 +6,7 @@ import Login from './pages/Login'
 import Navbar from './components/Navbar'
 import { Toaster } from 'react-hot-toast'
 import { useUserStore } from './stores/useUserStore'
+import LoadingSpinner from './components/LoadingSpinner'
 import Admin from './pages/Admin'
 import Category from './pages/Category'
 import Cart from './pages/Cart'
@@ -14,7 +15,7 @@ import PurchaseSuccessPage from './pages/PurchaseSuccessPage'
 import PurchaseCancelPage from './pages/PurchaseCancelPage'
 
 export default function App() {
-  const { user, checkAuth } = useUserStore()
+  const { user, checkAuth, checkingAuth } = useUserStore()
   const { getCartItems } = useCartStore()
 
   useEffect(() => {
@@ -25,6 +26,8 @@ export default function App() {
     if (!user) return
     getCartItems()
   }, [getCartItems, user])
+
+  if (checkingAuth) return <LoadingSpinner />
 
   return (
     <div className='min-h-screen bg-gray-900 text-white relative overflow-hidden '>

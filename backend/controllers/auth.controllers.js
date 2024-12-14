@@ -118,6 +118,25 @@ export const refreshToken = async (req, res) => {
 }
 
 
+export const userUpgrade = async (req, res) => {
+    try {
+        const userId = req.user._id
+        const user = await User.findById(userId)
+        if (!user) {
+            return res.status(404).json({ message: "User Not Found" })
+        }
+        const { role } = req.body
+        if (role === 'admin') {
+            user.role = 'admin'
+            await user.save()
+            return res.json({ message: "User Role Upgraded Successfully" })
+        }
+    } catch (error) {
+        console.log('Error Occur in get userUpgrade: ', error);
+
+    }
+}
+
 export const getProfile = async (req, res) => {
     try {
         return res.json(req.user)

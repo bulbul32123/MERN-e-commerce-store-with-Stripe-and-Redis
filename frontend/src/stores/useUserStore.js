@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast'
 export const useUserStore = create((set, get) => ({
     user: null,
     loading: false,
+    isAdmin: false,
     checkingAuth: false,
 
     signup: async ({ name, email, password }) => {
@@ -47,6 +48,16 @@ export const useUserStore = create((set, get) => ({
             console.log(get().checkingAuth);
             console.log('Error Occur in checkAuth: ', error);
 
+        }
+    },
+    upgradeUser: async () => {
+        try {
+            const { data } = await axiosInstance.post('/auth/userUpgrade', { role: 'admin' });
+            set({ user: data, isAdmin: true });
+            return true;
+        } catch (error) {
+            console.log('Error Occur in upgradeUser: ', error);
+            return false;
         }
     },
     refreshToken: async () => {
