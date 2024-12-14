@@ -39,15 +39,33 @@ export const useUserStore = create((set, get) => ({
     },
     checkAuth: async () => {
         set({ checkingAuth: true });
+
+        // Helper function to create a timeout promise
+        const timeout = (ms) => new Promise((_, reject) =>
+            setTimeout(() => console.log("time out"), ms)
+        );
+
         try {
-            const { data } = await axiosInstance.get('/auth/profile')
-            set({ user: data, checkingAuth: false })
+            console.log('Checking authentication...');
 
+            // Race between the API call and the timeout
+            const data = await Promise.race([
+                axiosInstance.get('/auth/profile').then((res) => res.data),
+                timeout(4000) // 3 seconds timeout
+            ]);
+
+            if (!data) {
+                set({ checkingAuth: false, user: null });
+                return false; // No data received within timeout
+            }
+
+            set({ user: data, checkingAuth: false });
+            return true; // Successfully authenticated
         } catch (error) {
-            set({ checkingAuth: false, user: null })
-            console.log(get().checkingAuth);
-            console.log('Error Occur in checkAuth: ', error);
-
+            // Handle errors (either timeout or API error)
+            set({ checkingAuth: false, user: null });
+            console.error('Error in checkAuth:', error);
+            return false;
         }
     },
     upgradeUser: async () => {
